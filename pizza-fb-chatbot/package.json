@@ -7,13 +7,17 @@
     "create":
       "claudia create  --use-s3-bucket aunt-merias-pizerria --region eu-central-1 --api-module bot --configure-fb-bot --profile claudia",
     "update":
-      "claudia update --cache-api-config apiConfig --use-s3-bucket aunt-merias-pizerria --region eu-central-1 --profile claudia"
+      "claudia update --no-optional-dependencies --cache-api-config apiConfig --use-s3-bucket aunt-merias-pizerria --region eu-central-1 --profile claudia"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "claudia-bot-builder": "^4.0.0"
+    "claudia-bot-builder": "^4.0.0",
+    "uuid": "^3.2.1"
+  },
+  "optionalDependencies": {
+    "aws-sdk": "^2.226.1"
   },
   "devDependencies": {
     "claudia": "^4.0.0"

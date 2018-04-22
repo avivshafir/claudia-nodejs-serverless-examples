@@ -1,6 +1,11 @@
 const pizzas = require("./data/pizzas.json");
 
 const botBuilder = require("claudia-bot-builder");
+
+const pizzaDetails = require("./handlers/pizza-details");
+const orderPizza = require("./handlers/order-pizza");
+const pizzaMenu = require("./handlers/pizza-menu");
+
 const fbTemplate = botBuilder.fbTemplate;
 
 const api = botBuilder(
@@ -8,34 +13,20 @@ const api = botBuilder(
     if (message.postback) {
       const [action, pizzaId] = message.text.split("|");
       if (action === "DETAILS") {
-        const pizza = pizzas.find(pizza => pizza.id == pizzaId);
-        return [
-          `${pizza.name} has following ingredients: ` +
-            pizza.ingredients.join(", "),
-          new fbTemplate.Button("What else can I do for you?")
-            .addButton("Order", `ORDER|${pizzaId}`)
-            .addButton("Show all pizzas", "ALL_PIZZAS")
-            .get()
-        ];
+        return pizzaDetails(pizzaId);
       } else if (action === "ORDER") {
-        const pizza = pizzas.find(pizza => pizza.id == pizzaId);
-        return `Thanks for ordering ${
-          pizza.name
-        }! I will let you know as soon as your pizza is ready.`;
+        return orderPizza(pizzaId, message.sender);
       }
     }
-
-    const reply = new fbTemplate.Generic();
-
-    pizzas.forEach(pizza => {
-      reply
-        .addBubble(pizza.name)
-        .addImage(pizza.image)
-        .addButton("Details", `DETAILS|${pizza.id}`)
-        .addButton("Order", `ORDER|${pizza.id}`);
-    });
-
-    return [`Hello, here's our pizza menu:`, reply.get()];
+    if (
+      message.originalRequest.message.attachments.length &&
+      message.originalRequest.message.attachments[0].payload.coordinates &&
+      message.originalRequest.message.attachments[0].payload.coordinates.lat &&
+      message.originalRequest.message.attachments[0].payload.coordinates.long
+    ) {
+      return saveLocation();
+    }
+    return [`Hello, here's our pizza menu:`, pizzaMenu()];
   },
   {
     platforms: ["facebook"]
